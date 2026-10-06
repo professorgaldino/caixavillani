@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
+  <title>Caixa Villani</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Caixa Villani</h1>
+      <p>Controle de vendas e recebimentos</p>
+    </div>
+    <div id="statusFirebase" class="status">Conectando...</div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-page="caixa">Caixa</button>
+    <button class="tab" data-page="eventos">Eventos</button>
+    <button class="tab" data-page="produtos">Produtos</button>
+    <button class="tab" data-page="historico">Histórico</button>
+    <button class="tab" data-page="relatorios">Relatórios</button>
+  </nav>
+
+  <main class="container">
+    <section id="page-caixa" class="page active">
+      <div class="page-title">
+        <div><h2>Frente de Caixa</h2><p>Selecione o evento, adicione os produtos e finalize o recebimento.</p></div>
+        <div class="field event-field">
+          <label for="eventoCaixa">Evento</label>
+          <select id="eventoCaixa"></select>
+        </div>
+      </div>
+
+      <div class="cash-grid">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Produtos</h3>
+            <input id="buscaProduto" type="search" placeholder="Buscar produto...">
+          </div>
+          <div id="produtosCaixa" class="product-grid"></div>
+        </div>
+
+        <div class="panel cart-panel">
+          <h3>Venda atual</h3>
+          <div id="carrinhoVazio" class="empty">Nenhum produto adicionado.</div>
+          <div id="carrinho" class="cart"></div>
+          <div class="cart-footer">
+            <div class="total-line"><span>Total</span><strong id="totalCarrinho">R$ 0,00</strong></div>
+            <button id="btnFinalizar" class="btn primary big" disabled>Receber pagamento</button>
+            <button id="btnLimpar" class="btn ghost">Limpar venda</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-eventos" class="page">
+      <div class="page-title"><div><h2>Eventos</h2><p>Cadastre e altere os eventos disponíveis no caixa.</p></div></div>
+      <div class="management-grid">
+        <form id="formEvento" class="panel form-panel">
+          <h3 id="tituloFormEvento">Novo evento</h3>
+          <input type="hidden" id="eventoId">
+          <div class="field"><label for="eventoNome">Nome do evento</label><input id="eventoNome" required maxlength="100" placeholder="Ex.: 2º Almoço Gavillani"></div>
+          <label class="check"><input id="eventoAtivo" type="checkbox" checked> Evento ativo</label>
+          <div class="actions"><button class="btn primary" type="submit">Salvar evento</button><button class="btn ghost" id="cancelarEvento" type="button">Cancelar</button></div>
+        </form>
+        <div class="panel"><h3>Eventos cadastrados</h3><div id="listaEventos" class="list"></div></div>
+      </div>
+    </section>
+
+    <section id="page-produtos" class="page">
+      <div class="page-title"><div><h2>Produtos</h2><p>Cadastre os itens vendidos e altere seus valores quando necessário.</p></div></div>
+      <div class="management-grid">
+        <form id="formProduto" class="panel form-panel">
+          <h3 id="tituloFormProduto">Novo produto</h3>
+          <input type="hidden" id="produtoId">
+          <div class="field"><label for="produtoNome">Nome do produto</label><input id="produtoNome" required maxlength="100" placeholder="Ex.: Refrigerante"></div>
+          <div class="field"><label for="produtoPreco">Preço</label><input id="produtoPreco" required type="number" min="0.01" step="0.01" placeholder="0,00"></div>
+          <label class="check"><input id="produtoAtivo" type="checkbox" checked> Produto ativo</label>
+          <div class="actions"><button class="btn primary" type="submit">Salvar produto</button><button class="btn ghost" id="cancelarProduto" type="button">Cancelar</button></div>
+        </form>
+        <div class="panel"><h3>Produtos cadastrados</h3><div id="listaProdutos" class="list"></div></div>
+      </div>
+    </section>
+
+    <section id="page-historico" class="page">
+      <div class="page-title">
+        <div><h2>Histórico de vendas</h2><p>Consulte os recebimentos registrados.</p></div>
+        <button id="atualizarHistorico" class="btn ghost">Atualizar</button>
+      </div>
+      <div class="panel filters">
+        <div class="field"><label>Evento</label><select id="histEvento"></select></div>
+        <div class="field"><label>Pagamento</label><select id="histPagamento"><option value="">Todos</option><option>Pix</option><option>Dinheiro</option><option>Débito</option><option>Crédito</option></select></div>
+        <div class="field"><label>Data inicial</label><input type="date" id="histInicio"></div>
+        <div class="field"><label>Data final</label><input type="date" id="histFim"></div>
+      </div>
+      <div class="panel table-wrap"><table><thead><tr><th>Data/hora</th><th>Evento</th><th>Itens</th><th>Pagamento</th><th>Status</th><th>Total</th><th>Ação</th></tr></thead><tbody id="tabelaHistorico"></tbody></table></div>
+    </section>
+
+    <section id="page-relatorios" class="page">
+      <div class="page-title">
+        <div><h2>Relatórios</h2><p>Conferência de caixa por evento, período e forma de pagamento.</p></div>
+        <button id="btnImprimir" class="btn primary">Imprimir relatório</button>
+      </div>
+      <div class="panel filters no-print">
+        <div class="field"><label>Evento</label><select id="relEvento"></select></div>
+        <div class="field"><label>Data inicial</label><input type="date" id="relInicio"></div>
+        <div class="field"><label>Data final</label><input type="date" id="relFim"></div>
+        <button id="gerarRelatorio" class="btn primary filter-button">Gerar relatório</button>
+      </div>
+
+      <div id="areaRelatorio">
+        <div class="report-heading">
+          <h2>Relatório de Conferência</h2>
+          <p id="relPeriodoTexto">Todos os registros</p>
+        </div>
+        <div class="cards">
+          <article class="card"><span>Total recebido</span><strong id="rTotal">R$ 0,00</strong></article>
+          <article class="card"><span>Vendas válidas</span><strong id="rVendas">0</strong></article>
+          <article class="card"><span>Itens vendidos</span><strong id="rItens">0</strong></article>
+          <article class="card"><span>Ticket médio</span><strong id="rTicket">R$ 0,00</strong></article>
+        </div>
+        <div class="report-grid">
+          <div class="panel"><h3>Por forma de pagamento</h3><div id="relPagamentos"></div></div>
+          <div class="panel"><h3>Produtos vendidos</h3><div id="relProdutos"></div></div>
+        </div>
+        <div class="panel table-wrap">
+          <h3>Vendas consideradas no relatório</h3>
+          <table><thead><tr><th>Data</th><th>Evento</th><th>Pagamento</th><th>Itens</th><th>Total</th></tr></thead><tbody id="relVendasTabela"></tbody></table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="modalPagamento" class="modal hidden">
+    <div class="modal-card">
+      <button id="fecharModal" class="modal-close" aria-label="Fechar">×</button>
+      <h2>Receber pagamento</h2>
+      <p>Selecione obrigatoriamente a forma de pagamento.</p>
+      <div class="payment-total"><span>Total da venda</span><strong id="modalTotal">R$ 0,00</strong></div>
+      <div class="payment-grid">
+        <button class="payment" data-payment="Pix">Pix</button>
+        <button class="payment" data-payment="Dinheiro">Dinheiro</button>
+        <button class="payment" data-payment="Débito">Débito</button>
+        <button class="payment" data-payment="Crédito">Crédito</button>
+      </div>
+      <div id="dinheiroBox" class="cash-change hidden">
+        <div class="field"><label for="valorRecebido">Valor recebido</label><input id="valorRecebido" type="number" min="0" step="0.01"></div>
+        <div class="change">Troco: <strong id="troco">R$ 0,00</strong></div>
+      </div>
+      <button id="confirmarPagamento" class="btn primary big" disabled>Confirmar recebimento</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

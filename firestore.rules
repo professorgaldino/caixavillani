@@ -1,0 +1,24 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // IMPORTANTE:
+    // Estas regras permitem o funcionamento do caixa sem login.
+    // São adequadas apenas para teste/controlado.
+    // Para publicar o endereço para terceiros, implemente Firebase Authentication
+    // e troque estas regras por regras autenticadas.
+
+    match /eventos/{document=**} {
+      allow read, write: if true;
+    }
+
+    match /produtos/{document=**} {
+      allow read, write: if true;
+    }
+
+    match /vendas/{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

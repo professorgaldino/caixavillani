@@ -142,37 +142,28 @@ function openPayment(){
   if(!$("#eventoCaixa").value)return toast("Selecione um evento antes de receber.",true);
   if(!carrinho.length)return;
   pagamentoSelecionado=null;$$(".payment").forEach(x=>x.classList.remove("selected"));
-  $("#dinheiroBox").classList.add("hidden");$("#valorRecebido").value="";$("#troco").textContent=money(0);
   $("#confirmarPagamento").disabled=true;$("#modalTotal").textContent=money(total());$("#modalPagamento").classList.remove("hidden");
 }
 $("#btnFinalizar").onclick=openPayment;
 $("#fecharModal").onclick=()=>$("#modalPagamento").classList.add("hidden");
 $$(".payment").forEach(b=>b.onclick=()=>{
   pagamentoSelecionado=b.dataset.payment;$$(".payment").forEach(x=>x.classList.toggle("selected",x===b));
-  $("#dinheiroBox").classList.toggle("hidden",pagamentoSelecionado!=="Dinheiro");
   $("#confirmarPagamento").disabled=false;
 });
-$("#valorRecebido").addEventListener("input",()=>$("#troco").textContent=money(Math.max(0,Number($("#valorRecebido").value)-total())));
 $("#confirmarPagamento").onclick=async()=>{
   if(salvando||!pagamentoSelecionado)return;
   const evento=eventos.find(e=>e.id===$("#eventoCaixa").value); if(!evento)return toast("Evento inválido.",true);
-  let recebido=null,troco=null;
-  if(pagamentoSelecionado==="Dinheiro"){
-    recebido=Number($("#valorRecebido").value);
-    if(!recebido||recebido<total())return toast("O valor recebido é menor que o total.",true);
-    troco=recebido-total();
-  }
   salvando=true;$("#confirmarPagamento").disabled=true;$("#confirmarPagamento").textContent="Salvando...";
   try{
     await addDoc(collection(db,"vendas"),{
       eventoId:evento.id,eventoNome:evento.nome,
       itens:carrinho.map(i=>({produtoId:i.id,nome:i.nome,preco:i.preco,qtd:i.qtd,subtotal:i.preco*i.qtd})),
-      total:total(),formaPagamento:pagamentoSelecionado,valorRecebido:recebido,troco,status:"concluida",
+      total:total(),formaPagamento:pagamentoSelecionado,status:"concluida",
       criadoEm:serverTimestamp()
     });
-    carrinho=[];renderCarrinho();$("#modalPagamento").classList.add("hidden");toast("Pagamento registrado com sucesso.");await loadAll();
+    carrinho=[];renderCarrinho();$("#modalPagamento").classList.add("hidden");toast("Venda lançada no caixa com sucesso.");await loadAll();
   }catch(err){console.error(err);toast("Erro ao registrar o pagamento.",true)}
-  finally{salvando=false;$("#confirmarPagamento").textContent="Confirmar recebimento";$("#confirmarPagamento").disabled=false}
+  finally{salvando=false;$("#confirmarPagamento").textContent="Lançar no Caixa";$("#confirmarPagamento").disabled=false}
 };
 
 function inRange(v,inicio,fim){

@@ -9,7 +9,7 @@ Sistema simples de caixa para eventos, integrado ao Firebase Firestore e compat�
 - Frente de caixa com carrinho
 - Quantidade de produtos
 - Pagamentos por Pix, Dinheiro, Débito e Crédito
-- Cálculo de troco para dinheiro
+- Lançamento direto do total dos produtos, sem digitar valor recebido ou calcular troco
 - Histórico de vendas
 - Cancelamento de venda sem apagar o histórico
 - Relatórios por evento e período
@@ -87,8 +87,6 @@ O GitHub Pages publicará o sistema.
 - itens
 - total
 - formaPagamento
-- valorRecebido
-- troco
 - status
 - criadoEm
 - canceladaEm (quando aplicável)
